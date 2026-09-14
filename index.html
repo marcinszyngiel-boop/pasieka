@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3b72b"><link rel="manifest" href="manifest.webmanifest">
+<title>Moja Pasieka</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f5f1;color:#222;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+header{background:#f3b72b;padding:18px 16px;font-size:28px;font-weight:800;position:sticky;top:0;z-index:5}
+main{max-width:650px;margin:auto;padding:15px}.sub{color:#666;margin:5px 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{border:0;border-radius:16px;background:#fff;padding:18px 8px;font-size:18px;font-weight:750;min-height:70px;box-shadow:0 2px 8px #0001}
+.hive{font-size:22px}.hive small{display:block;font-size:13px;color:#777;margin-top:6px;font-weight:500}
+.back{background:#e7e6e1;min-height:48px;padding:10px 14px;font-size:16px}.new,.save{width:100%;background:#2d7d46;color:#fff}
+h2{margin:16px 0}.section{margin:18px 0}.section b{display:block;color:#555;margin-bottom:8px}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.five{grid-template-columns:repeat(5,1fr)}.four{grid-template-columns:repeat(4,1fr)}
+.choice{min-height:48px;padding:8px 3px;font-size:14px}.on{background:#f3b72b}
+input,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;background:#fff;font-size:17px}textarea{min-height:110px}
+.card{background:#fff;padding:14px;border-radius:16px;margin:10px 0}.tag{display:inline-block;background:#eee;border-radius:8px;padding:5px;margin:3px;font-size:13px}.hidden{display:none}
+</style></head><body><header>🐝 Moja Pasieka</header><main>
+<div id="home"><div class="sub"><b>1 pasieka · 10 uli</b></div><div class="grid" id="hives"></div></div>
+<div id="h" class="hidden"><button class="back" onclick="home()">← Moja pasieka</button><h2 id="ht"></h2><button class="new" onclick="openForm()">＋ NOWY PRZEGLĄD</button><h3>Ostatni zapis</h3><div id="last"></div><h3>Historia ula</h3><div id="hist"></div></div>
+<div id="f" class="hidden"><button class="back" onclick="openHive(cur)">← Wróć do ula</button><h2>Nowy przegląd — UL <span id="num"></span></h2>
+<div class="section"><b>👑 Rocznik matki</b><input id="q" type="number" inputmode="numeric" placeholder="np. 2025"></div>
+<div class="section"><b>💪 Siła rodziny</b><div class="choices five" data-x="strength"></div></div>
+<div class="section"><b>🐣 Czerw</b><div class="choices" data-x="brood"></div></div>
+<div class="section"><b>🍯 Pokarm</b><div class="choices" data-x="food"></div></div>
+<div class="section"><b>🐝 Osyp warrozy po leczeniu</b><div class="choices" data-x="varroa"></div></div>
+<div class="section"><b>🍯 Ilość miodu w ulu</b><div class="choices four" data-x="honey"></div></div>
+<div id="cw" class="section hidden"><b>🧱 Zasklepienie</b><div class="choices" data-x="capping"></div></div>
+<div class="section"><b>🍯 Miodobranie</b><div class="choices" data-x="harvest"></div></div>
+<div class="section"><b>📝 Notatka</b><textarea id="n" placeholder="Możesz podyktować głosem przez klawiaturę iPhone’a."></textarea></div>
+<div class="section"><b>📷 Zdjęcie</b><input id="ph" type="file" accept="image/*" capture="environment"></div>
+<button class="save" onclick="save()">💾 ZAPISZ PRZEGLĄD</button></div>
+</main>
+<script>
+const K="pasieka_v3",opt={strength:["1","2","3","4","5"],brood:["Mało","Średnio","Dużo"],food:["Mało","Średnio","Dużo"],varroa:["Brak","Mały","Średni","Duży"],honey:["0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","100%"],capping:["Mało","Średnio","Dużo"],harvest:["Brak","Mało","Średnio","Dużo"]};
+let db=JSON.parse(localStorage.getItem(K)||"{}"),cur=0,sel={}; const $=x=>document.getElementById(x);
+function home(){$("home").classList.remove("hidden");$("h").classList.add("hidden");$("f").classList.add("hidden");render()}
+function render(){let z=$("hives");z.innerHTML="";for(let i=1;i<=10;i++){let a=(db[i]||[]).at(-1),b=document.createElement("button");b.className="hive";b.innerHTML="🐝 UL "+i+"<small>"+(a?a.date:"brak przeglądów")+"</small>";b.onclick=()=>openHive(i);z.appendChild(b)}}
+function openHive(i){cur=i;$("home").classList.add("hidden");$("f").classList.add("hidden");$("h").classList.remove("hidden");$("ht").textContent="🐝 UL "+i;let a=db[i]||[];$("last").innerHTML=a.length?card(a.at(-1)):"<div class='card'>Brak zapisów.</div>";$("hist").innerHTML=a.length?a.slice().reverse().map(card).join(""):"<div class='card'>Historia pojawi się po pierwszym przeglądzie.</div>"}
+function card(x){return "<div class='card'><b>"+x.date+"</b><div>"+["Matka "+(x.q||"—"),"Siła "+(x.strength||"—")+"/5","Czerw "+(x.brood||"—"),"Pokarm "+(x.food||"—"),"Warroza "+(x.varroa||"—"),"Miód "+(x.honey||"—"),x.capping?"Zasklep "+x.capping:"","Miodobranie "+(x.harvest||"—")].filter(Boolean).map(t=>"<span class='tag'>"+t+"</span>").join("")+"</div>"+(x.n?"<p>"+x.n.replace(/</g,"&lt;")+"</p>":"")+"</div>"}
+function openForm(){$("h").classList.add("hidden");$("f").classList.remove("hidden");$("num").textContent=cur;sel={};$("q").value="";$("n").value="";$("ph").value="";document.querySelectorAll(".choices").forEach(z=>{let f=z.dataset.x;z.innerHTML="";opt[f].forEach(v=>{let b=document.createElement("button");b.className="choice";b.textContent=v;b.onclick=()=>pick(f,v,b);z.appendChild(b)})});$("cw").classList.add("hidden")}
+function pick(f,v,b){sel[f]=v;b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");if(f=="honey")$("cw").classList.toggle("hidden",v!="100%")}
+function save(){let x={date:new Date().toLocaleDateString("pl-PL"),q:$("q").value,n:$("n").value,...sel};(db[cur]??=[]).push(x);localStorage.setItem(K,JSON.stringify(db));openHive(cur)}
+render();
+</script></body></html>
