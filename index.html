@@ -42,4 +42,4 @@ function openForm(){$("h").classList.add("hidden");$("f").classList.remove("hidd
 function pick(f,v,b){sel[f]=v;b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");if(f=="honey")$("cw").classList.toggle("hidden",v!="100%")}
 function save(){let x={date:new Date().toLocaleDateString("pl-PL"),q:$("q").value,n:$("n").value,...sel};(db[cur]??=[]).push(x);localStorage.setItem(K,JSON.stringify(db));openHive(cur)}
 render();
-</script></body></html>
+</script></body></html> 
